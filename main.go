@@ -47,13 +47,8 @@ func LoadConfig() (Configs, error) {
 	return configs, nil
 }
 
-func main() {
-	configs, err := LoadConfig()
-	if err != nil {
-		fmt.Println("Ошибка загрузки конфигурации:", err)
-		return
-	}
-
+// StartServers запускает серверы для каждой конфигурации.
+func StartServers(configs Configs) {
 	// Создаем отдельный обработчик для каждой конфигурации
 	for _, config := range configs {
 		fs := http.FileServer(http.Dir(config.Dir))
@@ -67,6 +62,16 @@ func main() {
 			}
 		}(config)
 	}
+}
+
+func main() {
+	configs, err := LoadConfig()
+	if err != nil {
+		fmt.Println("Ошибка загрузки конфигурации:", err)
+		return
+	}
+
+	StartServers(configs)
 
 	select {}
 }
