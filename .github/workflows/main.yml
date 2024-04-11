@@ -1,15 +1,9 @@
-name: Go Test
+name: Go CI
 
-on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+on: [push, pull_request]
 
 jobs:
-    test:
+    build:
         runs-on: ubuntu-latest
 
         steps:
@@ -21,5 +15,8 @@ jobs:
               with:
                   go-version: 1.17
 
-            # - name: Run tests
-            #   run: go test -v main-test.go
+            - name: Initialize Go module
+              run: go mod init github.com/r3vv1l/coraline
+
+            - name: Build
+              run: go build -o main .
