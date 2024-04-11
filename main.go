@@ -60,7 +60,7 @@ func main() {
 		http.Handle(config.Path, http.StripPrefix(config.Path, fs))
 
 		go func(config Config) {
-			fmt.Printf("Запуск сервера на порту %d...\n", config.Port)
+			fmt.Printf("%s runnig on %d\n", config.Index, config.Port)
 			err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
 			if err != nil {
 				fmt.Printf("Ошибка запуска сервера на порту %d: %v\n", config.Port, err)
