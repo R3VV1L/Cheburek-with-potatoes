@@ -1,7 +1,20 @@
 [
     {
-        "Dir": ".",
+        "Dir": "./www/",
         "Path": "/",
-        "Index": "index.html"
+        "Index": "index.html",
+        "Port": 8080
+    },
+    {
+        "Dir": "./www/",
+        "Path": "/site",
+        "Index": "site.html",
+        "Port": 8081
+    },
+    {
+        "Dir": "/",
+        "Path": "/sitee",
+        "Index": "sitee.html",
+        "Port": 9452
     }
 ]

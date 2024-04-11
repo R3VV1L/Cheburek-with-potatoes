@@ -5,35 +5,34 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
-	"strings"
 )
 
 // Config представляет конфигурацию для сайта.
 type Config struct {
-	Dir   string `json:"dir"`
-	Path  string `json:"path"`
-	Index string `json:"index"`
+	Dir   string `json:"dir"`   // Директория, где лежит сайт
+	Path  string `json:"path"`  // Путь, по которому будет доступен сайт
+	Index string `json:"index"` // Название файла-индекса
+	Port  int    `json:"port"`  // Номер порта, на котором будет запущен сервер
 }
 
 // Configs - срез Config.
 type Configs []Config
 
-// FileServerWithPrefix представляет файловый сервер с префиксом.
-type FileServerWithPrefix struct {
-	Prefix  string
-	Handler http.Handler
-}
-
-// NewFileServerWithPrefix создает новый файловый сервер с указанным префиксом.
-func NewFileServerWithPrefix(prefix string, handler http.Handler) *FileServerWithPrefix {
-	return &FileServerWithPrefix{Prefix: prefix, Handler: handler}
-}
-
 // LoadConfig загружает конфигурацию из файла или другого источника.
 func LoadConfig() (Configs, error) {
+	// Получаем текущую рабочую директорию
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	// Собираем полный путь до конфига
+	configPath := filepath.Join(cwd, "config.json")
+
 	// Загрузка конфигурации из JSON-файла
-	data, err := ioutil.ReadFile("config.json")
+	data, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -55,25 +54,19 @@ func main() {
 		return
 	}
 
-	fsMap := make(map[string]*FileServerWithPrefix)
-
+	// Создаем отдельный обработчик для каждой конфигурации
 	for _, config := range configs {
 		fs := http.FileServer(http.Dir(config.Dir))
-		fsWithPrefix := NewFileServerWithPrefix(config.Path, fs)
-		fsMap[config.Path] = fsWithPrefix
+		http.Handle(config.Path, http.StripPrefix(config.Path, fs))
+
+		go func(config Config) {
+			fmt.Printf("Запуск сервера на порту %d...\n", config.Port)
+			err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil)
+			if err != nil {
+				fmt.Printf("Ошибка запуска сервера на порту %d: %v\n", config.Port, err)
+			}
+		}(config)
 	}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		for k, fs := range fsMap {
-			if path == k || path == k+"/" || strings.HasPrefix(path, k+"/"+filepath.Base(fs.Prefix)) {
-				fs.Handler.ServeHTTP(w, r)
-				return
-			}
-		}
-
-		http.NotFound(w, r)
-	})
-
-	http.ListenAndServe(":80", nil)
+	select {}
 }
