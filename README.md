@@ -7,4 +7,4 @@ Example of a config for launching a website:
         "Index": "index.html",
         "Port": 8080
     }
-]```
+]
