@@ -10,11 +10,5 @@
         "Path": "/site",
         "Index": "site.html",
         "Port": 8081
-    },
-    {
-        "Dir": "/",
-        "Path": "/sitee",
-        "Index": "sitee.html",
-        "Port": 9452
     }
 ]
