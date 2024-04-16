@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -23,16 +22,16 @@ type Configs []Config
 // LoadConfig загружает конфигурацию из файла или другого источника.
 func LoadConfig() (Configs, error) {
 	// Получаем текущую рабочую директорию
-	cwd, err := os.Getwd()
+	currentWorkDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
 	// Собираем полный путь до конфига
-	configPath := filepath.Join(cwd, "config.json")
+	configPath := filepath.Join(currentWorkDir, "config.json")
 
 	// Загрузка конфигурации из JSON-файла
-	data, err := ioutil.ReadFile(configPath)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
